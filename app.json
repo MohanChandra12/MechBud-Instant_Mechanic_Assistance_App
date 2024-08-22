@@ -21,11 +21,21 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.mohan_11.DTM"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "config": { "googleMaps": { "apiKey": "AIzaSyD9V6eVWq7yGriVmJyyJ9bFZcb-64VEYag" } }
+    "config": {
+      "googleMaps": {
+        "apiKey": "AIzaSyD9V6eVWq7yGriVmJyyJ9bFZcb-64VEYag"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "17588a2a-ddea-457d-b292-a2c27463eced"
+      }
+    }
   }
 }

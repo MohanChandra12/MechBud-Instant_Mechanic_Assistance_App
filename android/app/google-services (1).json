@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "966077020077",
+    "project_id": "mohan-chandra",
+    "storage_bucket": "mohan-chandra.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:966077020077:android:ecc0990687d28822acd324",
+        "android_client_info": {
+          "package_name": "com.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcYS3bUtzJkDmI7MJcLFeCfCYsiJ4Ga0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

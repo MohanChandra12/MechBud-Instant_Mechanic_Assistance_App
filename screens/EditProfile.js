@@ -6,7 +6,6 @@ import {
   Image,
   TextInput,
   Modal,
-  StyleSheet,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +14,9 @@ import { COLORS, FONTS } from "../constants";
 import { MaterialIcons } from "@expo/vector-icons";
 import { imagesDataURL } from "../constants/data";
 import DatePicker, { getFormatedDate } from "react-native-modern-datepicker";
+import auth from 'firebase/compat/auth';
+import firestore from '@react-native-firebase/firestore';
+import {firebase} from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EditProfile = ({ navigation }) => {
@@ -23,10 +25,8 @@ const EditProfile = ({ navigation }) => {
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [country, setCountry] = useState(null);
-  const [userDetails, setUserDetails] = useState(null);
+
   const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("");
   const today = new Date();
   const startDate = getFormatedDate(
     today.setDate(today.getDate() + 1),
@@ -34,79 +34,29 @@ const EditProfile = ({ navigation }) => {
   );
   const [selectedStartDate, setSelectedStartDate] = useState("01/01/1990");
   const [startedDate, setStartedDate] = useState("12/12/2023");
-  useEffect(() => {
-    fetchUserDetails();
-  }, []);
 
+  // Fetch user details from Firestore on component mount
   useEffect(() => {
-    if (userDetails) {
-      setName(userDetails.name);
-      setEmail(userDetails.email);
-      // Set other user details accordingly
-    }
-  }, [userDetails]);
-  const fetchUserDetails = async () => {
-    try {
-      const userToken = await AsyncStorage.getItem("userToken");
-  
-      const response = await fetch(`http://192.168.0.101:3000/user`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
-  
-      if (!response.ok) {
-        if (response.status === 401) {
-          console.error("Error fetching user details: Unauthorized");
-        } else {
-          const errorData = await response.json();
-          if (errorData.message === "User not found") {
-            console.error("Error fetching user details:", errorData.message);
-            // Navigate to the login or error page
-          } else {
-            console.error("Error fetching user details:", errorData);
+    const fetchUserDetails = async () => {
+      try {
+        const currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+          const userDoc = await firebase.firestore().collection('users').doc(currentUser.uid).get();
+          const userData = userDoc.data();
+          if (userData) {
+            setName(userData.username);
+            setEmail(userData.email);
+            setPassword(userData.password);
+            setCountry(userData.countryCode);
           }
         }
-        return;
+      } catch (error) {
+        console.error("Error fetching user details:", error);
       }
-  
-      const jsonData = await response.json();
-  
-      const {
-        name,
-        email,
-        password,
-        dateOfBirth,
-        phoneNumber,
-        countryCode,
-        country,
-        image,
-      } = jsonData.user;
-  
-      // Set user details in the state
-      setUserDetails({
-        name,
-        email,
-        password,
-        dateOfBirth,
-        phoneNumber,
-        countryCode,
-        country,
-        image,
-      });
-  
-      setName(name);
-      setEmail(email);
-      setPassword(password);
-      setStartedDate(dateOfBirth);
-      setPhoneNumber(phoneNumber);
-      setCountryCode(countryCode);
-      setCountry(country);
-      setSelectedImage(image);
-    } catch (error) {
-      console.error("Error fetching user details:", error.message);
-    }
-  };
+    };
+
+    fetchUserDetails();
+  }, []);
 
   const handleChangeStartDate = (propDate) => {
     setStartedDate(propDate);
@@ -189,18 +139,7 @@ const EditProfile = ({ navigation }) => {
       </Modal>
     );
   }
-  const styles = StyleSheet.create({
-    inputContainer: {
-      height: 44,
-      width: "100%",
-      borderColor: COLORS.secondaryGray,
-      borderWidth: 1,
-      borderRadius: 4,
-      marginVertical: 6,
-      justifyContent: "center",
-      paddingLeft: 8,
-    },
-  });
+
   return (
     <SafeAreaView
       style={{
@@ -375,28 +314,6 @@ const EditProfile = ({ navigation }) => {
               <Text>{selectedStartDate}</Text>
             </TouchableOpacity>
           </View>
-          <View style={{ flexDirection: "column", marginBottom: 6 }}>
-          <Text style={{ ...FONTS.h4 }}>Phone Number</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-              value={phoneNumber}
-              onChangeText={(value) => setPhoneNumber(value)}
-              editable={true}
-            />
-          </View>
-        </View>
-
-        {/* Country Code */}
-        <View style={{ flexDirection: "column", marginBottom: 6 }}>
-          <Text style={{ ...FONTS.h4 }}>Country Code</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-              value={countryCode}
-              onChangeText={(value) => setCountryCode(value)}
-              editable={true}
-            />
-          </View>
-        </View>
         </View>
 
         <View
